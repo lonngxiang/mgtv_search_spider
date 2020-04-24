@@ -1,0 +1,60 @@
+import requests
+import re
+from lxml import etree
+import json
+
+
+def down_html(key_word, page_id=1):
+    """
+    @param key_word:关键词
+    @param page_id:页码
+    @return:请求下载网页源代码
+    """
+    url = "https://mobileso.bz.mgtv.com/pc/search/v1?q={}&pn={}&pc=10".format(key_word, page_id)
+    headers = {
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36"
+
+    }
+    html = requests.get(url, headers=headers, timeout=10, verify=False).text
+    # print(html)
+    return json.loads(html)
+
+
+def down_detail(key_word):
+    # try:
+    for i in range(2):
+        print("*"*10,"第%d页"%(i+1))
+        new_html = down_html(key_word, i + 1)
+        for i in range(10):
+            try:
+                if new_html['data']['contents'][i]['data']['sourceList']:
+                    poster_url = new_html['data']['contents'][i]['data']['pic']
+                    time_cost = ""
+                    poster_icon = ""
+                    vedio_url = new_html['data']['contents'][i]['data']['sourceList'][0]['url']
+                    vedio_info = ""
+                    title = new_html['data']['contents'][i]['data']['hitTitle'].replace('<B>', '').replace('</B>', '')
+                    print(title,poster_url,vedio_url)
+
+            except:
+                pass
+            try:
+
+                title = new_html['data']['contents'][i]['data']['hitTitle'].replace('<B>', '').replace('</B>', '')
+                poster_url = new_html['data']['contents'][i]['data']['pic']
+                vedio_url = "https:" + new_html['data']['contents'][i]['data']['url']
+                time_cost = new_html['data']['contents'][i]['data']['updateInfo']
+                vedio_info = ""
+                poster_icon = ""
+                print(title, poster_url, vedio_url,time_cost)
+            except:
+                pass
+
+
+
+
+
+if __name__ == "__main__":
+
+    down_detail("疯狂的外星人")
+
